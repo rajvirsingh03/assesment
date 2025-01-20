@@ -6,6 +6,7 @@ const App = () => {
   const [events, setEvents] = useState([]);
   const [token, setToken] = useState('');
   const [filterDate, setFilterDate] = useState('');
+  const [layout, setLayout] = useState("table");
 
   useEffect(() => {
     const urlParams = new URLSearchParams(window.location.search);
@@ -16,24 +17,13 @@ const App = () => {
     }
   }, []);
 
-  // const fetchEvents = async (token) => {
-  //   try {
-  //     const response = await axios.get('http://localhost:5000/events', {
-  //       headers: { Authorization: `Bearer ${token}` },
-  //     });
-  //     setEvents(response.data);
-  //   } catch (error) {
-  //     console.error('Error fetching events:', error);
-  //   }
-  // };
-
   const fetchEvents = async (token) => {
     try {
       const response = await axios.get('http://localhost:5000/events', {
         headers: { Authorization: `Bearer ${token}` },
       });
   
-      // Sort events by start date in descending order
+      // Sorting events in descending order
       const sortedEvents = response.data.sort((a, b) => {
         const dateA = new Date(a.start.dateTime || a.start.date);
         const dateB = new Date(b.start.dateTime || b.start.date);
@@ -55,51 +45,6 @@ const App = () => {
     return filterDate ? eventDate === filterDate : true;
   });
 
-//   return (
-//     <div style={{ padding: '20px', fontFamily: 'Arial, sans-serif' }}>
-//       {!token ? (
-//         <button onClick={loginWithGoogle} style={{ padding: '10px 20px', fontSize: '16px' }}>
-//           Login with Google
-//         </button>
-//       ) : (
-//         <>
-//           <h2>Your Events</h2>
-//           <div>
-//             <label htmlFor="date-filter" style={{ marginRight: '10px' }}>Filter by Date:</label>
-//             <input
-//               type="date"
-//               id="date-filter"
-//               value={filterDate}
-//               onChange={(e) => setFilterDate(e.target.value)}
-//               style={{ marginBottom: '20px', padding: '5px' }}
-//             />
-//           </div>
-//           <table border="1" style={{ width: '100%', textAlign: 'left' }}>
-//             <thead>
-//               <tr>
-//                 <th>Event Name</th>
-//                 <th>Date</th>
-//                 <th>Time</th>
-//                 <th>Location</th>
-//               </tr>
-//             </thead>
-//             <tbody>
-//               {filteredEvents.map((event) => (
-//                 <tr key={event.id}>
-//                   <td>{event.summary}</td>
-//                   <td>{new Date(event.start.dateTime || event.start.date).toLocaleDateString()}</td>
-//                   <td>{new Date(event.start.dateTime || event.start.date).toLocaleTimeString()}</td>
-//                   <td>{event.location || 'Virtual'}</td>
-//                 </tr>
-//               ))}
-//             </tbody>
-//           </table>
-//         </>
-//       )}
-//     </div>
-//   );
-// };
-
 return (
   <div className="bg-gradient-to-r from-blue-500 to-indigo-600 min-h-screen text-white font-sans">
     <header className="text-center py-10">
@@ -117,44 +62,83 @@ return (
         </button>
       </div>
     ) : (
-      <div className="max-w-4xl mx-auto mt-10">
+      <div className="max-w-6xl mx-auto mt-10 px-4">
         <div className="flex items-center justify-between mb-6">
           <h2 className="text-2xl font-semibold">Your Events</h2>
-          <div>
-            <label htmlFor="date-filter" className="mr-2">
-              Filter by Date:
-            </label>
-            <input
-              type="date"
-              id="date-filter"
-              value={filterDate}
-              onChange={(e) => setFilterDate(e.target.value)}
-              className="p-2 rounded bg-gray-100 text-black"
-            />
+          <div className="flex space-x-4">
+            <div>
+              <label htmlFor="date-filter" className="mr-2">
+                Filter by Date:
+              </label>
+              <input
+                type="date"
+                id="date-filter"
+                value={filterDate}
+                onChange={(e) => setFilterDate(e.target.value)}
+                className="p-2 rounded bg-gray-100 text-black"
+              />
+            </div>
+            <button
+              onClick={() => setLayout((prev) => (prev === "grid" ? "table" : "grid"))}
+              className="px-4 py-2 bg-white text-blue-600 rounded shadow-md"
+            >
+              Toggle Layout
+            </button>
           </div>
         </div>
 
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-          {filteredEvents.map((event) => (
-            <div
-              key={event.id}
-              className="p-4 bg-white text-black rounded-lg shadow-md"
-            >
-              <h3 className="text-xl font-bold">{event.summary}</h3>
-              <p>
-                <strong>Date:</strong>{' '}
-                {new Date(event.start.dateTime || event.start.date).toLocaleDateString()}
-              </p>
-              <p>
-                <strong>Time:</strong>{' '}
-                {new Date(event.start.dateTime || event.start.date).toLocaleTimeString()}
-              </p>
-              <p>
-                <strong>Location:</strong> {event.location || 'Virtual'}
-              </p>
-            </div>
-          ))}
-        </div>
+        {layout === "grid" ? (
+          // Grid (Card) Layout
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 pb-10">
+            {filteredEvents.map((event) => (
+              <div
+                key={event.id}
+                className="p-4 bg-white text-black rounded-lg shadow-md"
+              >
+                <h3 className="text-xl font-bold">{event.summary}</h3>
+                <p>
+                  <strong>Date:</strong>{" "}
+                  {new Date(event.start.dateTime || event.start.date).toLocaleDateString()}
+                </p>
+                <p>
+                  <strong>Time:</strong>{" "}
+                  {new Date(event.start.dateTime || event.start.date).toLocaleTimeString()}
+                </p>
+                <p>
+                  <strong>Location:</strong> {event.location || "Virtual"}
+                </p>
+              </div>
+            ))}
+          </div>
+        ) : (
+          // Table Layout
+          <div className="overflow-auto">
+            <table className="min-w-full border-collapse border border-gray-300 rounded-lg">
+              <thead className="bg-gray-700 text-white">
+                <tr>
+                  <th className="border border-gray-400 px-4 py-2 text-left">Event Name</th>
+                  <th className="border border-gray-400 px-4 py-2 text-left">Date</th>
+                  <th className="border border-gray-400 px-4 py-2 text-left">Time</th>
+                  <th className="border border-gray-400 px-4 py-2 text-left">Location</th>
+                </tr>
+              </thead>
+              <tbody className="bg-blue-300 text-black">
+                {filteredEvents.map((event) => (
+                  <tr key={event.id}>
+                    <td className="border border-gray-400 px-4 py-2">{event.summary}</td>
+                    <td className="border border-gray-400 px-4 py-2">
+                      {new Date(event.start.dateTime || event.start.date).toLocaleDateString()}
+                    </td>
+                    <td className="border border-gray-400 px-4 py-2">
+                      {new Date(event.start.dateTime || event.start.date).toLocaleTimeString()}
+                    </td>
+                    <td className="border border-gray-400 px-4 py-2">{event.location || "Virtual"}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        )}
       </div>
     )}
   </div>

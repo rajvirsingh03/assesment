@@ -1,7 +1,6 @@
 const express = require('express');
 const cors = require('cors');
 const bodyParser = require('body-parser');
-//const helmet = require('helmet');
 const { google } = require('googleapis');
 require('dotenv').config();
 
@@ -11,25 +10,14 @@ const PORT = 5000;
 app.use(cors());
 app.use(bodyParser.json());
 
-// Set Content-Security-Policy headers
-// app.use(
-//     helmet({
-//       contentSecurityPolicy: false, // Temporarily disable CSP
-//     })
-//   );
-
 // Google OAuth2 client setup
 const oAuth2Client = new google.auth.OAuth2(
   process.env.CLIENT_ID,
   process.env.CLIENT_SECRET,
   process.env.REDIRECT_URI
-    // '12844776280-40ojcu592lmh4ije0lr5gm2js06gt6kc.apps.googleusercontent.com',
-    // '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',
-    // 'http://localhost:5000/auth/callback'
 );
-console.log(process.env.CLIENT_ID)
 
-// Step 1: Initiate Google OAuth
+// Initiating Google OAuth
 app.get('/auth', (req, res) => {
   const authUrl = oAuth2Client.generateAuthUrl({
     access_type: 'offline',
@@ -38,7 +26,7 @@ app.get('/auth', (req, res) => {
   res.redirect(authUrl);
 });
 
-// Step 2: Handle Google OAuth callback
+// Step 2: Handling Google OAuth callback
 app.get('/auth/callback', async (req, res) => {
   const code = req.query.code;
 
@@ -56,7 +44,7 @@ app.get('/auth/callback', async (req, res) => {
   }
 });
 
-// Step 3: Fetch Google Calendar events
+// Step 3: Fetching Google Calendar events
 app.get('/events', async (req, res) => {
   const token = req.headers.authorization.split(' ')[1];
   oAuth2Client.setCredentials({ access_token: token });

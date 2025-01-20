@@ -1,7 +1,7 @@
 const express = require('express');
 const cors = require('cors');
 const bodyParser = require('body-parser');
-const helmet = require('helmet');
+//const helmet = require('helmet');
 const { google } = require('googleapis');
 require('dotenv').config();
 
@@ -12,18 +12,22 @@ app.use(cors());
 app.use(bodyParser.json());
 
 // Set Content-Security-Policy headers
-app.use(
-    helmet({
-      contentSecurityPolicy: false, // Temporarily disable CSP
-    })
-  );
+// app.use(
+//     helmet({
+//       contentSecurityPolicy: false, // Temporarily disable CSP
+//     })
+//   );
 
 // Google OAuth2 client setup
 const oAuth2Client = new google.auth.OAuth2(
   process.env.CLIENT_ID,
   process.env.CLIENT_SECRET,
   process.env.REDIRECT_URI
+    // '12844776280-40ojcu592lmh4ije0lr5gm2js06gt6kc.apps.googleusercontent.com',
+    // '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',
+    // 'http://localhost:5000/auth/callback'
 );
+console.log(process.env.CLIENT_ID)
 
 // Step 1: Initiate Google OAuth
 app.get('/auth', (req, res) => {

@@ -27,6 +27,23 @@ app.get('/auth', (req, res) => {
 });
 
 // Step 2: Handling Google OAuth callback
+// app.get('/auth/callback', async (req, res) => {
+//   const code = req.query.code;
+
+//   if (!code) {
+//     return res.status(400).send('Missing authorization code.');
+//   }
+
+//   try {
+//     const { tokens } = await oAuth2Client.getToken(code);
+//     oAuth2Client.setCredentials(tokens);
+//     res.redirect(`http://localhost:3000?token=${tokens.access_token}`);
+//   } catch (error) {
+//     console.error('Error during token exchange:', error);
+//     res.status(500).send('Authentication failed.');
+//   }
+// });
+
 app.get('/auth/callback', async (req, res) => {
   const code = req.query.code;
 
@@ -35,15 +52,17 @@ app.get('/auth/callback', async (req, res) => {
   }
 
   try {
-    const { tokens } = await oAuth2Client.getToken(code);
+    const { tokens } = await oAuth2Client.getToken(code); // Exchange the code for tokens
     oAuth2Client.setCredentials(tokens);
-    res.redirect(`http://localhost:3000?token=${tokens.access_token}`);
+    const accessToken = tokens.access_token;
+
+    // Redirect to the frontend with the access token
+    res.redirect(`https://frontend-lchh.onrender.com?token=${accessToken}`);
   } catch (error) {
     console.error('Error during token exchange:', error);
     res.status(500).send('Authentication failed.');
   }
 });
-
 // Step 3: Fetching Google Calendar events
 app.get('/events', async (req, res) => {
   const token = req.headers.authorization.split(' ')[1];
